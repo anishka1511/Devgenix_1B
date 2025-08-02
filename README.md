@@ -91,7 +91,3 @@ Output example:
 - Education Summarizers
 - Business Analysts
 - Research Content Extraction
-
-## Team & Credits
-Built by [Your Name / Team Name] at [Hackathon Name]  
-Special thanks to the BAAI and Microsoft teams for `bge-small` and `phi-2`!
