@@ -1,20 +1,17 @@
-import subprocess
+import ollama
 
-def summarize_with_ollama(prompt, model="phi:2"):
+def summarize_with_ollama(prompt, model="llama3.2:1b"):
     """
-    Uses the lightweight phi:2 model from Ollama for local summarization.
+    Uses the lightweight llama3.2:1b model from Ollama for local summarization.
     Returns a summary generated from the given prompt.
     """
     try:
-        result = subprocess.run(
-            ["ollama", "run", model, "-p", prompt],
-            capture_output=True,
-            text=True,
-            timeout=30
+        response = ollama.chat(
+            model=model,
+            messages=[{'role': 'user', 'content': prompt}],
+            options={'temperature': 0.7}
         )
-        return result.stdout.strip()
-    except subprocess.TimeoutExpired:
-        return "[SUMMARY ERROR: TIMEOUT]"
+        return response['message']['content'].strip()
     except Exception as e:
         return f"[SUMMARY ERROR: {str(e)}]"
 

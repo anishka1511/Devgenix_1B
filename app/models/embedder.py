@@ -3,7 +3,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 # Load local model (path can be changed)
-model = SentenceTransformer("models2/bge-small")
+model = SentenceTransformer("BAAI/bge-small-en-v1.5")
 
 def get_embedding(text):
     return model.encode(text, convert_to_numpy=True)

@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 # Use absolute paths based on current script location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_JSON_PATH = os.path.join(SCRIPT_DIR, "input", "input.json")
-PDF_FOLDER = os.path.join(SCRIPT_DIR, "assets", "PDF Set 1")
+PDF_FOLDER = os.path.join(SCRIPT_DIR, "assets", "Testing PDFs", "PDF Set 1")
 OUTPUT_FOLDER = os.path.join(SCRIPT_DIR, "output")
 OUTPUT_FILE_PATH = os.path.join(OUTPUT_FOLDER, "final_output.json")
 
