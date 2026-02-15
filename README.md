@@ -91,3 +91,5 @@ Output example:
 - Education Summarizers
 - Business Analysts
 - Research Content Extraction
+- Legal Document Review
+- HR Resume Screening
