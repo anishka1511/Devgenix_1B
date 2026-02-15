@@ -62,20 +62,25 @@ Output example:
 1. Clone the repo  
    ```bash
    git clone https://github.com/your-username/document-analyzer.git
-   cd document-analyzer
+   cd document-analyzer/app
    ```
 
-2. Build Docker Image  
+2. Install dependencies  
    ```bash
-   docker build -t doc-analyzer .
+   pip install -r requirements.txt
    ```
 
-3. Run the Container  
+3. Install Ollama and pull the phi model  
    ```bash
-   docker run --rm -v "$(pwd)/input":/app/input -v "$(pwd)/output":/app/output --network none doc-analyzer
+   ollama pull phi
    ```
 
-4. Check `/output` for your `.json` results
+4. Run the web application  
+   ```bash
+   python app.py
+   ```
+
+5. Open your browser to `http://127.0.0.1:8000` and start uploading PDFs
 
 ## Tech Stack
 | Layer        | Tool              |
