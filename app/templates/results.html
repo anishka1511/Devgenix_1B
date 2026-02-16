@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f5f5f0 0%, #e8e4d9 100%);
             min-height: 100vh;
             padding: 40px 20px;
         }
@@ -24,15 +24,16 @@
         }
 
         .header {
-            background: white;
-            border-radius: 20px;
+            background: #ffffff;
+            border-radius: 12px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 24px rgba(139, 123, 102, 0.15);
+            border: 1px solid #e8e4d9;
         }
 
         h1 {
-            color: #333;
+            color: #5a4a3a;
             margin-bottom: 15px;
             font-size: 28px;
         }
@@ -48,20 +49,20 @@
             background: #f9f9f9;
             padding: 15px;
             border-radius: 10px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #c4a574;
         }
 
         .info-card label {
             display: block;
             font-size: 12px;
-            color: #666;
+            color: #8b7b66;
             text-transform: uppercase;
             margin-bottom: 5px;
             font-weight: 600;
         }
 
         .info-card .value {
-            color: #333;
+            color: #5a4a3a;
             font-size: 16px;
         }
 
@@ -71,7 +72,7 @@
 
         .doc-tag {
             display: inline-block;
-            background: #667eea;
+            background: #c4a574;
             color: white;
             padding: 4px 10px;
             border-radius: 15px;
@@ -80,15 +81,16 @@
         }
 
         .results-section {
-            background: white;
-            border-radius: 20px;
+            background: #ffffff;
+            border-radius: 12px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 24px rgba(139, 123, 102, 0.15);
             margin-bottom: 30px;
+            border: 1px solid #e8e4d9;
         }
 
         .section-title {
-            color: #333;
+            color: #5a4a3a;
             font-size: 22px;
             margin-bottom: 20px;
             display: flex;
@@ -97,17 +99,17 @@
         }
 
         .result-card {
-            background: #f9f9f9;
+            background: #faf8f3;
             border-radius: 12px;
             padding: 25px;
             margin-bottom: 20px;
-            border-left: 5px solid #667eea;
+            border-left: 5px solid #c4a574;
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .result-card:hover {
             transform: translateX(5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 20px rgba(196, 165, 116, 0.2);
         }
 
         .result-header {
@@ -120,7 +122,7 @@
         }
 
         .result-title {
-            color: #333;
+            color: #5a4a3a;
             font-size: 20px;
             font-weight: 600;
             flex: 1;
@@ -137,11 +139,11 @@
             align-items: center;
             gap: 5px;
             font-size: 13px;
-            color: #666;
+            color: #8b7b66;
         }
 
         .rank-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #c4a574 0%, #a88b5c 100%);
             color: white;
             padding: 6px 12px;
             border-radius: 20px;
@@ -150,7 +152,7 @@
         }
 
         .score-badge {
-            background: #4ade80;
+            background: #7ba87d;
             color: white;
             padding: 6px 12px;
             border-radius: 20px;
@@ -171,18 +173,18 @@
         .back-btn {
             display: inline-block;
             padding: 12px 24px;
-            background: white;
-            color: #667eea;
+            background: #c4a574;
+            color: white;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
             transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(196, 165, 116, 0.3);
         }
 
         .back-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 25px rgba(196, 165, 116, 0.4);
         }
 
         .empty-state {
@@ -208,7 +210,7 @@
 
         /* TTS Speaker button styling */
         .speaker-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #c4a574 0%, #a88b5c 100%);
             border: none;
             border-radius: 50%;
             width: 40px;
@@ -224,17 +226,17 @@
 
         .speaker-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(196, 165, 116, 0.4);
         }
 
         .speaker-btn.playing {
             animation: speakPulse 1s ease-in-out infinite;
-            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            background: linear-gradient(135deg, #7ba87d 0%, #6a9a6c 100%);
         }
 
         @keyframes speakPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-            50% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(123, 168, 125, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(123, 168, 125, 0); }
         }
 
         .speaker-btn:disabled {
@@ -243,7 +245,7 @@
         }
 
         .play-all-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #c4a574 0%, #a88b5c 100%);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -343,7 +345,7 @@
         </div>
 
         <div style="text-align: center;">
-            <a href="/" class="back-btn">← Analyze More Documents</a>
+            <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
         </div>
     </div>
 
