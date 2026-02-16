@@ -1,12 +1,14 @@
 import os
 import json
-from flask import Flask, render_template, request, redirect, url_for, flash
+import tempfile
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_file
 from werkzeug.utils import secure_filename
 from models.embedder import get_embedding, get_similarity_score
 from extractor.pdf_parser import extract_chunks_from_pdf
 from extractor.section_grouper import group_chunks_into_sections
 from processor.summarizer import summarize_with_ollama, build_prompt
 from utils.json_output import build_output_json
+import pyttsx3
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -115,6 +117,38 @@ def process_documents(documents, persona, job_task):
         sec["summary"] = summary
     
     return ranked
+
+@app.route('/synthesize', methods=['POST'])
+def synthesize_speech():
+    """Generate speech from text using pyttsx3"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+        
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+        
+        # Initialize TTS engine
+        engine = pyttsx3.init()
+        
+        # Set properties
+        engine.setProperty('rate', 150)  # Speed
+        engine.setProperty('volume', 0.9)  # Volume
+        
+        # Create temporary file for audio
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
+        audio_path = temp_file.name
+        temp_file.close()
+        
+        # Save speech to file
+        engine.save_to_file(text, audio_path)
+        engine.runAndWait()
+        
+        # Send audio file
+        return send_file(audio_path, mimetype='audio/wav', as_attachment=False)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=False, host='127.0.0.1', port=8000, use_reloader=False)

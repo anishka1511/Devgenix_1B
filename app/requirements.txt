@@ -4,3 +4,5 @@ pdfplumber
 numpy
 scikit-learn
 pymupdf
+flask
+pyttsx3

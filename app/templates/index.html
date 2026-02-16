@@ -189,6 +189,53 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Voice input styling */
+        .input-with-mic {
+            position: relative;
+        }
+
+        .mic-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        .mic-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .mic-btn.listening {
+            animation: pulse 1.5s ease-in-out infinite;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(240, 147, 251, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(240, 147, 251, 0); }
+        }
+
+        .mic-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        textarea.input-with-mic {
+            padding-right: 50px;
+        }
     </style>
 </head>
 <body>
@@ -205,12 +252,18 @@
         <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
             <div class="form-group">
                 <label for="persona">Your Role / Persona</label>
-                <input type="text" id="persona" name="persona" placeholder="e.g., History Teacher, Travel Planner, Business Analyst" required>
+                <div class="input-with-mic">
+                    <input type="text" id="persona" name="persona" placeholder="e.g., History Teacher, Travel Planner, Business Analyst" required>
+                    <button type="button" class="mic-btn" id="personaMic" title="Click to speak">🎤</button>
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="job_task">What do you want to learn?</label>
-                <textarea id="job_task" name="job_task" placeholder="e.g., Tell me about France, Plan a trip to Paris, Find market trends" required></textarea>
+                <div class="input-with-mic">
+                    <textarea id="job_task" name="job_task" class="input-with-mic" placeholder="e.g., Tell me about France, Plan a trip to Paris, Find market trends" required></textarea>
+                    <button type="button" class="mic-btn" id="jobTaskMic" title="Click to speak">🎤</button>
+                </div>
             </div>
 
             <div class="form-group">
@@ -287,6 +340,86 @@
             submitBtn.textContent = 'Processing...';
             loading.classList.add('show');
         });
+
+        // Speech Recognition Setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            const personaMic = document.getElementById('personaMic');
+            const jobTaskMic = document.getElementById('jobTaskMic');
+            const personaInput = document.getElementById('persona');
+            const jobTaskInput = document.getElementById('job_task');
+
+            let currentInput = null;
+            let currentButton = null;
+
+            // Start listening function
+            function startListening(inputField, button) {
+                currentInput = inputField;
+                currentButton = button;
+                
+                button.classList.add('listening');
+                button.textContent = '🔴';
+                button.disabled = true;
+                
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.error('Speech recognition error:', error);
+                    resetButton();
+                }
+            }
+
+            // Reset button state
+            function resetButton() {
+                if (currentButton) {
+                    currentButton.classList.remove('listening');
+                    currentButton.textContent = '🎤';
+                    currentButton.disabled = false;
+                }
+            }
+
+            // Handle successful transcription
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                if (currentInput) {
+                    currentInput.value = transcript;
+                }
+                resetButton();
+            };
+
+            // Handle recognition end
+            recognition.onend = () => {
+                resetButton();
+            };
+
+            // Handle errors
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                alert('Speech recognition error: ' + event.error + '. Please try again or type manually.');
+                resetButton();
+            };
+
+            // Mic button click handlers
+            personaMic.addEventListener('click', () => {
+                startListening(personaInput, personaMic);
+            });
+
+            jobTaskMic.addEventListener('click', () => {
+                startListening(jobTaskInput, jobTaskMic);
+            });
+
+        } else {
+            // Hide mic buttons if not supported
+            console.warn('Speech recognition not supported in this browser');
+            const micButtons = document.querySelectorAll('.mic-btn');
+            micButtons.forEach(btn => btn.style.display = 'none');
+        }
     </script>
 </body>
 </html>

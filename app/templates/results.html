@@ -205,6 +205,66 @@
                 flex-direction: column;
             }
         }
+
+        /* TTS Speaker button styling */
+        .speaker-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 18px;
+            margin-left: 10px;
+        }
+
+        .speaker-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .speaker-btn.playing {
+            animation: speakPulse 1s ease-in-out infinite;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        }
+
+        @keyframes speakPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
+        }
+
+        .speaker-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .play-all-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .play-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .play-all-btn.playing {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        }
     </style>
 </head>
 <body>
@@ -241,10 +301,18 @@
             </div>
 
             {% if results %}
+                <button class="play-all-btn" id="playAllBtn">
+                    <span id="playAllIcon">🔊</span>
+                    <span id="playAllText">Play All Results</span>
+                </button>
+
                 {% for result in results %}
-                <div class="result-card">
+                <div class="result-card" data-result-index="{{ loop.index }}">
                     <div class="result-header">
-                        <div class="result-title">{{ result.title }}</div>
+                        <div class="result-title">
+                            {{ result.title }}
+                            <button class="speaker-btn" data-text="{{ result.title }}. {{ result.summary }}" title="Listen to summary">🔊</button>
+                        </div>
                         <div class="result-meta">
                             <span class="rank-badge">#{{ loop.index }} Most Relevant</span>
                             <span class="score-badge">{{ (result.score * 100) | round(1) }}% Match</span>
@@ -256,8 +324,7 @@
                             📄 <strong>{{ result.document }}</strong>
                         </span>
                         <span class="meta-item">
-                            📖 Page {{ result.page }}
-                        </span>
+                            📖 Page {{ result.page }}</span>
                     </div>
 
                     <div class="summary">
@@ -279,5 +346,222 @@
             <a href="/" class="back-btn">← Analyze More Documents</a>
         </div>
     </div>
+
+    <script>
+        // Text-to-Speech functionality
+        const speakerButtons = document.querySelectorAll('.speaker-btn');
+        const playAllBtn = document.getElementById('playAllBtn');
+        const playAllIcon = document.getElementById('playAllIcon');
+        const playAllText = document.getElementById('playAllText');
+        
+        let currentAudio = null;
+        let isPlayingAll = false;
+        let playQueue = [];
+        let isPaused = false;
+        let currentUtterance = null;
+
+        // Function to play single summary
+        async function playSummary(text, button) {
+            try {
+                // If paused and clicking same button, resume
+                if (isPaused && button.classList.contains('paused')) {
+                    resumePlayback(button);
+                    return;
+                }
+
+                // Stop any currently playing audio
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+                
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+
+                document.querySelectorAll('.speaker-btn.playing, .speaker-btn.paused').forEach(btn => {
+                    btn.classList.remove('playing', 'paused');
+                    btn.textContent = '🔊';
+                });
+
+                button.classList.add('playing');
+                button.textContent = '⏸️';
+                button.disabled = false;
+                isPaused = false;
+
+                // Try Web Speech API first
+                if ('speechSynthesis' in window) {
+                    currentUtterance = new SpeechSynthesisUtterance(text);
+                    currentUtterance.rate = 1.0;
+                    currentUtterance.pitch = 1.0;
+                    currentUtterance.volume = 1.0;
+
+                    currentUtterance.onend = () => {
+                        button.classList.remove('playing');
+                        button.textContent = '🔊';
+                        currentUtterance = null;
+                        
+                        // If playing all, continue to next
+                        if (isPlayingAll && playQueue.length > 0) {
+                            const next = playQueue.shift();
+                            setTimeout(() => playSummary(next.text, next.button), 500);
+                        } else {
+                            isPlayingAll = false;
+                            resetPlayAllButton();
+                        }
+                    };
+
+                    currentUtterance.onerror = () => {
+                        button.classList.remove('playing');
+                        button.textContent = '🔊';
+                        currentUtterance = null;
+                    };
+
+                    window.speechSynthesis.speak(currentUtterance);
+                } else {
+                    // Fallback: show alert if Web Speech API not supported
+                    alert('Text-to-speech is not supported in your browser.');
+                    button.classList.remove('playing');
+                    button.textContent = '🔊';
+                }
+
+            } catch (error) {
+                console.error('TTS Error:', error);
+                button.classList.remove('playing');
+                button.textContent = '🔊';
+            }
+        }
+
+        // Pause/Resume functionality
+        function pausePlayback(button) {
+            if (window.speechSynthesis.speaking && !isPaused) {
+                window.speechSynthesis.pause();
+                isPaused = true;
+                button.classList.remove('playing');
+                button.classList.add('paused');
+                button.textContent = '▶️';
+            }
+        }
+
+        function resumePlayback(button) {
+            if (isPaused) {
+                window.speechSynthesis.resume();
+                isPaused = false;
+                button.classList.remove('paused');
+                button.classList.add('playing');
+                button.textContent = '⏸️';
+            }
+        }
+
+        // Individual speaker button click handlers
+        speakerButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const text = button.getAttribute('data-text');
+                
+                // If this button is playing, pause it
+                if (button.classList.contains('playing')) {
+                    pausePlayback(button);
+                    return;
+                }
+                
+                // If this button is paused, resume it
+                if (button.classList.contains('paused')) {
+                    resumePlayback(button);
+                    return;
+                }
+                
+                // Stop play all if running
+                if (isPlayingAll) {
+                    stopPlayAll();
+                }
+                
+                playSummary(text, button);
+            });
+        });
+
+        // Play all functionality
+        playAllBtn.addEventListener('click', () => {
+            // If playing, pause
+            if (isPlayingAll && !isPaused) {
+                pausePlayAll();
+            } 
+            // If paused, resume
+            else if (isPlayingAll && isPaused) {
+                resumePlayAll();
+            } 
+            // Start playing
+            else {
+                startPlayAll();
+            }
+        });
+
+        function pausePlayAll() {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.pause();
+                isPaused = true;
+                playAllIcon.textContent = '▶️';
+                playAllText.textContent = 'Resume Playing';
+            }
+        }
+
+        function resumePlayAll() {
+            if (isPaused) {
+                window.speechSynthesis.resume();
+                isPaused = false;
+                playAllIcon.textContent = '⏸️';
+                playAllText.textContent = 'Pause Playing';
+            }
+        }
+
+        function startPlayAll() {
+            isPlayingAll = true;
+            isPaused = false;
+            playAllBtn.classList.add('playing');
+            playAllIcon.textContent = '⏸️';
+            playAllText.textContent = 'Pause Playing';
+
+            // Build queue
+            playQueue = [];
+            speakerButtons.forEach(btn => {
+                playQueue.push({
+                    text: btn.getAttribute('data-text'),
+                    button: btn
+                });
+            });
+
+            // Start playing first
+            if (playQueue.length > 0) {
+                const first = playQueue.shift();
+                playSummary(first.text, first.button);
+            }
+        }
+
+        function stopPlayAll() {
+            isPlayingAll = false;
+            isPaused = false;
+            playQueue = [];
+            
+            // Stop speech synthesis
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            
+            // Reset all buttons
+            speakerButtons.forEach(btn => {
+                btn.classList.remove('playing', 'paused');
+                btn.textContent = '🔊';
+                btn.disabled = false;
+            });
+            
+            resetPlayAllButton();
+        }
+
+        function resetPlayAllButton() {
+            playAllBtn.classList.remove('playing');
+            playAllIcon.textContent = '🔊';
+            playAllText.textContent = 'Play All Results';
+        }
+    </script>
 </body>
 </html>
