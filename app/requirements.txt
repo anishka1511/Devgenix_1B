@@ -8,3 +8,5 @@ flask
 pyttsx3
 flask-login
 flask-sqlalchemy
+ollama
+Pillow
