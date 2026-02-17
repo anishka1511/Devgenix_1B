@@ -238,9 +238,89 @@
         textarea.input-with-mic {
             padding-right: 50px;
         }
+
+        .dark-toggle {
+            background: #f3f0e8;
+            border: 1px solid #e0d6c2;
+            color: #5a4a2f;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dark-toggle-floating {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f1216 0%, #0b0f14 100%);
+            color: #e6e6e6;
+        }
+
+        body.dark-mode .container {
+            background: #1b222c;
+            border-color: #2d3a4a;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-mode h1 {
+            color: #f0d9a6;
+        }
+
+        body.dark-mode .subtitle,
+        body.dark-mode label {
+            color: #c9c9c9;
+        }
+
+        body.dark-mode input[type="text"],
+        body.dark-mode textarea {
+            background: #141a22;
+            border-color: #2d3a4a;
+            color: #f3f3f3;
+        }
+
+        body.dark-mode input[type="text"]:focus,
+        body.dark-mode textarea:focus {
+            border-color: #f0d9a6;
+            box-shadow: 0 0 0 3px rgba(240, 217, 166, 0.15);
+        }
+
+        body.dark-mode .file-upload,
+        body.dark-mode .file-list {
+            background: #141a22;
+            border-color: #2d3a4a;
+        }
+
+        body.dark-mode .file-item {
+            background: #1b222c;
+            color: #e6e6e6;
+        }
+
+        body.dark-mode .spinner {
+            border: 3px solid #2d3a4a;
+            border-top: 3px solid #f0d9a6;
+        }
+
+        body.dark-mode .dark-toggle {
+            background: #1e2632;
+            border: 1px solid #2d3a4a;
+            color: #f0d9a6;
+        }
     </style>
 </head>
 <body>
+    <button class="dark-toggle dark-toggle-floating" id="darkModeToggle" type="button" aria-label="Toggle dark mode">
+        <span class="icon">🌙</span>
+        <span class="label">Dark mode</span>
+    </button>
     <div class="container">
         <h1>📄 Intelligent Document Analyzer</h1>
         <p class="subtitle">Upload PDFs, specify your role and task, and get AI-powered insights</p>
@@ -291,6 +371,40 @@
     </div>
 
     <script>
+        function applyDarkMode(isDark) {
+            document.body.classList.toggle('dark-mode', isDark);
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                const icon = toggle.querySelector('.icon');
+                const label = toggle.querySelector('.label');
+                if (icon) {
+                    icon.textContent = isDark ? '☀️' : '🌙';
+                }
+                if (label) {
+                    label.textContent = isDark ? 'Light mode' : 'Dark mode';
+                }
+            }
+        }
+
+        function initDarkMode() {
+            const stored = localStorage.getItem('darkMode');
+            const legacy = localStorage.getItem('dashboardDarkMode');
+            const isDark = stored !== null ? stored === 'true' : legacy === 'true';
+            applyDarkMode(isDark);
+
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    const next = !document.body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', String(next));
+                    localStorage.setItem('dashboardDarkMode', String(next));
+                    applyDarkMode(next);
+                });
+            }
+        }
+
+        initDarkMode();
+
         const fileUpload = document.getElementById('fileUpload');
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');

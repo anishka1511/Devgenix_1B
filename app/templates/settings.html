@@ -35,6 +35,12 @@
             color: #c4a574;
         }
 
+        .navbar .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
         .navbar a {
             color: #666;
             text-decoration: none;
@@ -44,6 +50,25 @@
 
         .navbar a:hover {
             color: #c4a574;
+        }
+
+        .dark-toggle {
+            background: #f3f0e8;
+            border: 1px solid #e0d6c2;
+            color: #5a4a2f;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dark-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
         }
 
         .container {
@@ -141,6 +166,66 @@
             margin-bottom: 15px;
             text-transform: uppercase;
         }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f1216 0%, #0b0f14 100%);
+            color: #e6e6e6;
+        }
+
+        body.dark-mode .navbar {
+            background: #141a22;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-mode .navbar .logo {
+            color: #f0d9a6;
+        }
+
+        body.dark-mode .navbar a {
+            color: #b8b8b8;
+        }
+
+        body.dark-mode .settings-card {
+            background: #1b222c;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-mode h1,
+        body.dark-mode .form-group label,
+        body.dark-mode .section-title {
+            color: #f3f3f3;
+        }
+
+        body.dark-mode .form-group input {
+            background: #141a22;
+            border-color: #2d3a4a;
+            color: #f3f3f3;
+        }
+
+        body.dark-mode .form-group input:focus {
+            border-color: #f0d9a6;
+            box-shadow: 0 0 0 3px rgba(240, 217, 166, 0.15);
+        }
+
+        body.dark-mode .divider {
+            background: #2d3a4a;
+        }
+
+        body.dark-mode .message.success {
+            background: #1f3a2b;
+            color: #a6e3b8;
+        }
+
+        body.dark-mode .message.error {
+            background: #3a1f1f;
+            color: #f3b3b3;
+        }
+
+        body.dark-mode .dark-toggle {
+            background: #1e2632;
+            border: 1px solid #2d3a4a;
+            color: #f0d9a6;
+        }
     </style>
 </head>
 <body>
@@ -149,7 +234,13 @@
             <span>📄</span>
             <span>Document Analyzer</span>
         </div>
-        <a href="/dashboard">← Back to Dashboard</a>
+        <div class="nav-actions">
+            <button class="dark-toggle" id="darkModeToggle" type="button" aria-label="Toggle dark mode">
+                <span class="icon">🌙</span>
+                <span class="label">Dark mode</span>
+            </button>
+            <a href="/dashboard">← Back to Dashboard</a>
+        </div>
     </div>
 
     <div class="container">
@@ -196,6 +287,40 @@
     </div>
 
     <script>
+        function applyDarkMode(isDark) {
+            document.body.classList.toggle('dark-mode', isDark);
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                const icon = toggle.querySelector('.icon');
+                const label = toggle.querySelector('.label');
+                if (icon) {
+                    icon.textContent = isDark ? '☀️' : '🌙';
+                }
+                if (label) {
+                    label.textContent = isDark ? 'Light mode' : 'Dark mode';
+                }
+            }
+        }
+
+        function initDarkMode() {
+            const stored = localStorage.getItem('darkMode');
+            const legacy = localStorage.getItem('dashboardDarkMode');
+            const isDark = stored !== null ? stored === 'true' : legacy === 'true';
+            applyDarkMode(isDark);
+
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    const next = !document.body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', String(next));
+                    localStorage.setItem('dashboardDarkMode', String(next));
+                    applyDarkMode(next);
+                });
+            }
+        }
+
+        initDarkMode();
+
         // Load current user data
         async function loadUserData() {
             try {

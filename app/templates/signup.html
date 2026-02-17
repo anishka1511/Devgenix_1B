@@ -197,9 +197,96 @@
             color: #c4a574;
             text-decoration: none;
         }
+
+        .dark-toggle {
+            background: #f3f0e8;
+            border: 1px solid #e0d6c2;
+            color: #5a4a2f;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dark-toggle-floating {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f1216 0%, #0b0f14 100%);
+            color: #e6e6e6;
+        }
+
+        body.dark-mode .signup-container {
+            background: #1b222c;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-mode .logo h1 {
+            color: #f0d9a6;
+        }
+
+        body.dark-mode .logo p,
+        body.dark-mode .form-group label,
+        body.dark-mode .login-link,
+        body.dark-mode .terms {
+            color: #c9c9c9;
+        }
+
+        body.dark-mode .form-group input {
+            background: #141a22;
+            border-color: #2d3a4a;
+            color: #f3f3f3;
+        }
+
+        body.dark-mode .form-group input:focus {
+            border-color: #f0d9a6;
+            box-shadow: 0 0 0 3px rgba(240, 217, 166, 0.15);
+        }
+
+        body.dark-mode .password-strength {
+            background: #2d3a4a;
+        }
+
+        body.dark-mode .divider::before,
+        body.dark-mode .divider::after {
+            background: #2d3a4a;
+        }
+
+        body.dark-mode .error-message {
+            background: #3a1f1f;
+            color: #f3b3b3;
+        }
+
+        body.dark-mode .success-message {
+            background: #1f3a2b;
+            color: #a6e3b8;
+        }
+
+        body.dark-mode .login-link a,
+        body.dark-mode .terms a {
+            color: #f0d9a6;
+        }
+
+        body.dark-mode .dark-toggle {
+            background: #1e2632;
+            border: 1px solid #2d3a4a;
+            color: #f0d9a6;
+        }
     </style>
 </head>
 <body>
+    <button class="dark-toggle dark-toggle-floating" id="darkModeToggle" type="button" aria-label="Toggle dark mode">
+        <span class="icon">🌙</span>
+        <span class="label">Dark mode</span>
+    </button>
     <div class="signup-container">
         <div class="logo">
             <h1>📄 Document Analyzer</h1>
@@ -248,6 +335,40 @@
     </div>
 
     <script>
+        function applyDarkMode(isDark) {
+            document.body.classList.toggle('dark-mode', isDark);
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                const icon = toggle.querySelector('.icon');
+                const label = toggle.querySelector('.label');
+                if (icon) {
+                    icon.textContent = isDark ? '☀️' : '🌙';
+                }
+                if (label) {
+                    label.textContent = isDark ? 'Light mode' : 'Dark mode';
+                }
+            }
+        }
+
+        function initDarkMode() {
+            const stored = localStorage.getItem('darkMode');
+            const legacy = localStorage.getItem('dashboardDarkMode');
+            const isDark = stored !== null ? stored === 'true' : legacy === 'true';
+            applyDarkMode(isDark);
+
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    const next = !document.body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', String(next));
+                    localStorage.setItem('dashboardDarkMode', String(next));
+                    applyDarkMode(next);
+                });
+            }
+        }
+
+        initDarkMode();
+
         // Password strength indicator
         document.getElementById('password').addEventListener('input', function(e) {
             const password = e.target.value;

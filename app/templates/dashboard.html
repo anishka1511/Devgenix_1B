@@ -41,6 +41,25 @@
             gap: 20px;
         }
 
+        .navbar .dark-toggle {
+            background: #f3f0e8;
+            border: 1px solid #e0d6c2;
+            color: #5a4a2f;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .navbar .dark-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
+        }
+
         .navbar .username {
             color: #333;
             font-weight: 500;
@@ -136,6 +155,51 @@
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f1216 0%, #0b0f14 100%);
+            color: #e6e6e6;
+        }
+
+        body.dark-mode .navbar {
+            background: #141a22;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-mode .navbar .logo {
+            color: #f0d9a6;
+        }
+
+        body.dark-mode .navbar .username,
+        body.dark-mode .welcome-section h1,
+        body.dark-mode .section-title,
+        body.dark-mode .action-card h3 {
+            color: #f3f3f3;
+        }
+
+        body.dark-mode .welcome-section p,
+        body.dark-mode .action-card p,
+        body.dark-mode .stat-card .label {
+            color: #b8b8b8;
+        }
+
+        body.dark-mode .welcome-section,
+        body.dark-mode .action-card,
+        body.dark-mode .stat-card,
+        body.dark-mode .history-section {
+            background: #1b222c;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-mode .stat-card .number {
+            color: #f0d9a6;
+        }
+
+        body.dark-mode .navbar .dark-toggle {
+            background: #1e2632;
+            border: 1px solid #2d3a4a;
+            color: #f0d9a6;
         }
 
         .history-item {
@@ -236,6 +300,10 @@
             <span>Document Analyzer</span>
         </div>
         <div class="user-menu">
+            <button class="dark-toggle" id="darkModeToggle" type="button" aria-label="Toggle dark mode">
+                <span class="icon">🌙</span>
+                <span class="label">Dark mode</span>
+            </button>
             <span class="username">Welcome, <strong id="displayUsername">User</strong>!</span>
             <button class="btn-logout" onclick="logout()">Logout</button>
         </div>
@@ -293,6 +361,38 @@
     </div>
 
     <script>
+        function applyDarkMode(isDark) {
+            document.body.classList.toggle('dark-mode', isDark);
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                const icon = toggle.querySelector('.icon');
+                const label = toggle.querySelector('.label');
+                if (icon) {
+                    icon.textContent = isDark ? '☀️' : '🌙';
+                }
+                if (label) {
+                    label.textContent = isDark ? 'Light mode' : 'Dark mode';
+                }
+            }
+        }
+
+        function initDarkMode() {
+            const stored = localStorage.getItem('darkMode');
+            const legacy = localStorage.getItem('dashboardDarkMode');
+            const isDark = stored !== null ? stored === 'true' : legacy === 'true';
+            applyDarkMode(isDark);
+
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    const next = !document.body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', String(next));
+                    localStorage.setItem('dashboardDarkMode', String(next));
+                    applyDarkMode(next);
+                });
+            }
+        }
+
         // Load user data
         async function loadUserData() {
             try {
@@ -362,6 +462,7 @@
         }
 
         // Load data on page load
+        initDarkMode();
         loadUserData();
     </script>
 </body>
